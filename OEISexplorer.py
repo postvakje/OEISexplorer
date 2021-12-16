@@ -6,12 +6,10 @@ Created on Thu Nov  4 11:41:42 2021
 """
 
 import streamlit as st
-import altair as alt
 import pandas as pd
 import numpy as np
 import re
 import requests
-import seaborn as sns
 from gplearn.genetic import SymbolicRegressor
 from gplearn.functions import make_function
 from sympy import factor, sympify, sin, cos, tan, sqrt, S, exp, log, Add, Mul, Pow, simplify, Number, Symbol, Float, expand
@@ -19,7 +17,6 @@ from sympy import ceiling, floor, Max, Min, Abs
 import math
 from sympy.abc import n
 import urllib.parse
-import plotly.express as px
 import plotly.graph_objects as go
 
 nameregex = re.compile('<tt>%N (.*)\n</tt>')
@@ -95,7 +92,7 @@ def readfromOEIS(s): #read bfile and sequence information from OEIS
         for line in data:
             if not line.startswith('#'):
                 try:
-                    a,b = map(int,line.strip().split())
+                    a,b = map(int,line.strip().split()) 
                 except:
                     pass
                 else:
@@ -115,7 +112,7 @@ class OEISsequence(object):
         self.s = str(n).zfill(6)
         self.OEISstruct = readfromOEIS(self.s)
         self.nterms = len(self.OEISstruct['bfile'])
-    def get_data(self):
+    def get_data(self): 
         return (np.array(self.OEISstruct['bfile'].index), np.array(self.OEISstruct['bfile']['terms']))
     def get_data_trimmed(self):
         a, b = self.get_data()
@@ -125,7 +122,7 @@ class OEISsequence(object):
                 indexlist.append(a[i])
                 data.append(b[i])
         return (np.array(indexlist), np.array(data))
-    def plot_data(self):
+    def plot_data(self):    
         if 'bfile' in self.OEISstruct:
             indexlist, data = self.get_data_trimmed()
             ylabel = 'A'+self.s+'(n)'
@@ -157,7 +154,7 @@ sequence1 = OEISsequence(seqnum1)
 if 'name' not in sequence1.OEISstruct or not hasattr(rx,'groups') or len(rx.groups()) == 0:
     st.write("Sequence not found. Please try again.")
 else:
-    st.write("OEIS sequence ",seqnum1,": ", sequence1.OEISstruct['name'])
+    st.write("OEIS sequence ",seqnum1,": ", sequence1.OEISstruct['name'])   
     fig1, logfig1 = sequence1.plot_data()
     indexlist, data = sequence1.get_data_trimmed()
     logindexlist, logdata = [], []
@@ -172,9 +169,9 @@ else:
     with st.sidebar.form(key='sr form'):
         st.write("First Sequence")
         selected_functions = [function_set_dict[d] for d in st.multiselect('functions used in symbolic regression',options = function_set_labels,default=['x+y','x-y','x/y','x*y','-x','1/x','sqrt(x)'])]
-        run_sr = st.form_submit_button('run symbolic regression using gplearn')
+        run_sr = st.form_submit_button('run symbolic regression using gplearn') 
         logselected_functions = [function_set_dict[d] for d in st.multiselect('functions used in symbolic regression (semilog plot)',options = function_set_labels,default=['x+y','x-y','x/y','x*y','-x','1/x','sqrt(x)'])]
-        run_sr_log = st.form_submit_button('run symbolic regression on log of sequence using gplearn')
+        run_sr_log = st.form_submit_button('run symbolic regression on log of sequence using gplearn')   
     ylabel = 'A'+sequence1.s+'(n)'
     if run_sr:
         sr = SymbolicRegressor(function_set=selected_functions,n_jobs=-1)
@@ -200,7 +197,7 @@ else:
             X0 = list(logsr_exp.atoms(Symbol))[0]
             logsr_exp = logsr_exp.subs(X0,n)
     st.plotly_chart(fig1,use_container_width=True)
-
+    
     st.markdown("""---""")
     if run_sr_log:
         st.write("Regression function for semilog plot =",round_expr(logsr_exp,num_digits))
@@ -220,7 +217,7 @@ else:
         if 'name' not in sequence2.OEISstruct or not hasattr(rx2,'groups') or len(rx2.groups()) == 0:
             st.write("Sequence not found. Please try again.")
         else:
-            st.write("OEIS sequence ",seqnum2,": ", sequence2.OEISstruct['name'])
+            st.write("OEIS sequence ",seqnum2,": ", sequence2.OEISstruct['name'])   
             fig2, logfig2 = sequence2.plot_data()
             indexlist2, data2 = sequence2.get_data_trimmed()
             logindexlist2, logdata2 = [], []
